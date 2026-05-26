@@ -9,12 +9,20 @@ const server = http.createServer(app);
 const io = socketIO(server);
 
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+// app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 
 io.on('connection', (socket) => {
-  console.log('A user connected');
+    socket.on('send-location', (data) => {
+        io.emit('receive-location', { id: socket.id, ...data });
+    });
+    console.log('A user connected');
+
+    socket.on('disconnect', () => {
+        console.log('A user disconnected');
+        io.emit('user-disconnected', socket.id);
+    });
 });
 
 app.get('/', (req, res) => {
